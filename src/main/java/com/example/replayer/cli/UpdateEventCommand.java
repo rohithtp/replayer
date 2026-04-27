@@ -70,9 +70,9 @@ public class UpdateEventCommand implements Runnable {
 
       if (degree != null) updates.put("degree", degree);
 
-      if (startDate != null) updates.put("startDate", startDate);
+      if (startDate != null) updates.put("startDate", startDate.toString());
 
-      if (endDate != null) updates.put("endDate", endDate);
+      if (endDate != null) updates.put("endDate", endDate.toString());
 
       eventService.updateEvent(ledgerFile, index, updates);
 

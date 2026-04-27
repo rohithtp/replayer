@@ -87,9 +87,9 @@ public class EducationEvent extends Event {
 
     map.put("degree", degree);
 
-    map.put("startDate", getStartDate());
+    map.put("startDate", getStartDate() != null ? getStartDate().toString() : null);
 
-    map.put("endDate", getEndDate());
+    map.put("endDate", getEndDate() != null ? getEndDate().toString() : null);
 
     return map;
   }

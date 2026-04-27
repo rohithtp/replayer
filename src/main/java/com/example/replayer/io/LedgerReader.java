@@ -2,11 +2,12 @@ package com.example.replayer.io;
 
 import com.example.replayer.yaml.YamlCodec;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.yaml.snakeyaml.Yaml;
-import java.nio.file.Files;
 
 /**
  * Class responsible for reading the ledger file.
@@ -34,8 +35,15 @@ public class LedgerReader {
    */
   public List<Map<String, Object>> read(Path path) throws IOException {
 
+    if (!Files.exists(path)) {
+
+      return new ArrayList<>();
+    }
+
     String content = Files.readString(path);
 
-    return yaml.load(content);
+    List<Map<String, Object>> result = yaml.load(content);
+
+    return result != null ? result : new ArrayList<>();
   }
 }

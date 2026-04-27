@@ -19,7 +19,7 @@ import picocli.CommandLine.Parameters;
     description = "Render the resume view from a YAML event ledger.")
 public class ReplayCommand implements Runnable {
 
-  @Parameters(index = "0", description = "Path to the ledger file")
+  @Parameters(index = "0", arity = "0..1", description = "Path to the ledger file")
   private Path ledgerFile;
 
   private final EventService eventService;
@@ -43,6 +43,15 @@ public class ReplayCommand implements Runnable {
 
   @Override
   public void run() {
+
+    if (ledgerFile == null) {
+
+      System.err.println("Usage: replay <ledgerFile>");
+
+      System.exit(1);
+
+      return;
+    }
 
     try {
 
