@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+replayer:
+  ledger:
+    file: events.yaml
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

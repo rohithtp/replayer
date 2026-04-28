@@ -1,0 +1,147 @@
+openapi: "3.0.3"
+info:
+  title: "Replayer API"
+  description: "REST API for managing a YAML-based event ledger and rendering resume output."
+  version: "1.0.0"
+servers:
+  - url: "http://localhost:8080"
+    description: "Local development server"
+
+paths:
+  /api/events:
+    get:
+      summary: "List all events"
+      operationId: "listEvents"
+      responses:
+        "200":
+          description: "List of all events in the ledger"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+    post:
+      summary: "Add a new event"
+      operationId: "addEvent"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventRequest"
+      responses:
+        "201":
+          description: "Event successfully added"
+        "400":
+          description: "Validation error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/events/{index}:
+    put:
+      summary: "Update an existing event"
+      operationId: "updateEvent"
+      parameters:
+        - name: index
+          in: path
+          required: true
+          description: "Zero-based index of the event to update"
+          schema:
+            type: integer
+            minimum: 0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventUpdateRequest"
+      responses:
+        "204":
+          description: "Event successfully updated"
+        "400":
+          description: "Validation error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Event index not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/resume:
+    get:
+      summary: "Render resume as plain text"
+      operationId: "renderResume"
+      responses:
+        "200":
+          description: "Rendered resume output"
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  schemas:
+    EventRequest:
+      type: object
+      required:
+        - eventType
+        - startDate
+        - endDate
+      properties:
+        eventType:
+          type: string
+          enum: [work, education]
+          example: "work"
+        company:
+          type: string
+          example: "Acme Corp"
+        title:
+          type: string
+          example: "Software Engineer"
+        institution:
+          type: string
+          example: "State University"
+        degree:
+          type: string
+          example: "B.Sc. Computer Science"
+        startDate:
+          type: string
+          format: date
+          example: "2020-01-01"
+        endDate:
+          type: string
+          format: date
+          example: "2022-12-31"
+
+    EventUpdateRequest:
+      type: object
+      properties:
+        company:
+          type: string
+        title:
+          type: string
+        institution:
+          type: string
+        degree:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "company is required"
