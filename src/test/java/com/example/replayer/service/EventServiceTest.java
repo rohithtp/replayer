@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.example.replayer.io.LedgerReader;
 import com.example.replayer.io.LedgerWriter;
 import com.example.replayer.model.WorkEvent;
+import com.example.replayer.yaml.YamlCodec;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -21,6 +22,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -125,6 +127,40 @@ class EventServiceTest {
     assertEquals(expected, result);
   }
 
+  // --- multiple events (integration with real file) ---
+
+  @Test
+  void addEvent_multipleWorkEvents_allPersistedInOrder(@TempDir Path tempDir) throws IOException {
+    Path ledger = tempDir.resolve("ledger.yaml");
+    YamlCodec codec = new YamlCodec();
+    EventService realService =
+        new EventService(new LedgerReader(codec), new LedgerWriter(codec), new EventValidator());
+
+    WorkEvent first = workEvent("Initech", "Junior Engineer", "2005-09-01", "2008-03-31");
+    WorkEvent second = workEvent("Umbrella Corp", "Software Engineer", "2008-06-01", "2012-12-31");
+    WorkEvent third = workEvent("Acme Corp", "Senior Engineer", "2013-02-01", "2018-07-31");
+
+    realService.addEvent(ledger, first);
+    realService.addEvent(ledger, second);
+    realService.addEvent(ledger, third);
+
+    List<Map<String, Object>> saved = realService.getEvents(ledger);
+
+    assertEquals(3, saved.size());
+
+    assertEquals("Initech", saved.get(0).get("company"));
+    assertEquals("Junior Engineer", saved.get(0).get("title"));
+    assertEquals("2005-09-01", saved.get(0).get("startDate"));
+
+    assertEquals("Umbrella Corp", saved.get(1).get("company"));
+    assertEquals("Software Engineer", saved.get(1).get("title"));
+    assertEquals("2008-06-01", saved.get(1).get("startDate"));
+
+    assertEquals("Acme Corp", saved.get(2).get("company"));
+    assertEquals("Senior Engineer", saved.get(2).get("title"));
+    assertEquals("2013-02-01", saved.get(2).get("startDate"));
+  }
+
   // --- helpers ---
 
   private WorkEvent validWorkEvent() {
@@ -134,6 +170,16 @@ class EventServiceTest {
     e.setTitle("Engineer");
     e.setStartDate(LocalDate.of(2020, 1, 1));
     e.setEndDate(LocalDate.of(2022, 6, 30));
+    return e;
+  }
+
+  private WorkEvent workEvent(String company, String title, String start, String end) {
+    WorkEvent e = new WorkEvent();
+    e.setEventType("work");
+    e.setCompany(company);
+    e.setTitle(title);
+    e.setStartDate(LocalDate.parse(start));
+    e.setEndDate(LocalDate.parse(end));
     return e;
   }
 

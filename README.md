@@ -100,6 +100,8 @@ java -jar target/replayer-1.0-SNAPSHOT.jar add-event <ledgerFile> \
 | `--startDate` | Yes | all | Start date in `YYYY-MM-DD` format |
 | `--endDate` | Yes | all | End date in `YYYY-MM-DD` format |
 
+> **Note:** Option values that contain spaces must be wrapped in quotes (e.g. `--title "Associate Consultant"`). Without quotes the shell splits the value into separate tokens and picocli will error with `Unmatched argument`.
+
 **Examples**
 
 Add a work event:
